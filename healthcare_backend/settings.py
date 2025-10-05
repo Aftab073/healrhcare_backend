@@ -1,5 +1,3 @@
-# healthcare_backend/settings.py
-
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
@@ -35,6 +33,9 @@ INSTALLED_APPS = [
     'apps.doctors',
     'apps.mappings',
 ]
+
+# Custom user model
+AUTH_USER_MODEL = 'authentication.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
