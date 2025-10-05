@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
+    'django_extensions',
     
     # Our custom apps
     'apps.authentication',
