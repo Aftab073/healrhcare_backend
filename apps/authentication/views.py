@@ -64,41 +64,28 @@ class UserLoginView(APIView):
     
     Returns JWT access and refresh tokens.
     """
-    permission_classes = [AllowAny]  # Anyone can attempt to login
+    permission_classes = [AllowAny]
     
     def post(self, request):
         """
         Authenticate user and return JWT tokens.
-        
-        Request body:
-        {
-            "email": "john@example.com",
-            "password": "securepass123"
-        }
-        
-        Response:
-        {
-            "message": "Login successful",
-            "access": "jwt_access_token",
-            "refresh": "jwt_refresh_token",
-            "user": {...}
-        }
         """
         serializer = UserLoginSerializer(data=request.data)
         
         if serializer.is_valid():
-            # Serializer validation already checked credentials
+            # validated_data already contains properly formatted response
+            data = serializer.validated_data
+            
             return Response(
                 {
                     'message': 'Login successful',
-                    'access': serializer.validated_data['access'],
-                    'refresh': serializer.validated_data['refresh'],
-                    'user': serializer.validated_data['user'],
+                    'access': data['access'],
+                    'refresh': data['refresh'],
+                    'user': data['user'],
                 },
                 status=status.HTTP_200_OK
             )
         
-        # Return authentication errors
         return Response(
             {
                 'error': 'Login failed',

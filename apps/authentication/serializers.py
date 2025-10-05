@@ -70,21 +70,6 @@ class UserLoginSerializer(serializers.Serializer):
         style={'input_type': 'password'}
     )
     
-    # These fields will be returned in the response
-    access = serializers.CharField(read_only=True)
-    refresh = serializers.CharField(read_only=True)
-    user = serializers.SerializerMethodField(read_only=True)
-    
-    def get_user(self, obj):
-        """
-        Return basic user information.
-        """
-        return {
-            'id': obj['user'].id,
-            'email': obj['user'].email,
-            'name': obj['user'].name,
-        }
-    
     def validate(self, attrs):
         """
         Validate credentials and generate tokens.
@@ -96,29 +81,34 @@ class UserLoginSerializer(serializers.Serializer):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            raise serializers.ValidationError({
-                'error': 'Invalid credentials. Please check your email and password.'
-            })
+            raise serializers.ValidationError(
+                'Invalid credentials. Please check your email and password.'
+            )
         
         # Check if password is correct
         if not user.check_password(password):
-            raise serializers.ValidationError({
-                'error': 'Invalid credentials. Please check your email and password.'
-            })
+            raise serializers.ValidationError(
+                'Invalid credentials. Please check your email and password.'
+            )
         
         # Check if user is active
         if not user.is_active:
-            raise serializers.ValidationError({
-                'error': 'User account is disabled.'
-            })
+            raise serializers.ValidationError(
+                'User account is disabled.'
+            )
         
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
         
+        # Return serializable data (not the User object!)
         return {
-            'user': user,
             'access': str(refresh.access_token),
             'refresh': str(refresh),
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                'name': user.name,
+            }
         }
 
 
